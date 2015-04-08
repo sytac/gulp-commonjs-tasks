@@ -14,7 +14,7 @@
 		"gulpplugin"
 	],
 	"author": "",
-	"license": "ISC",
+	"license": "GPLv3",
 	"devDependencies": {},
 	"dependencies": {
 		"gulp": "^3.8.11",
