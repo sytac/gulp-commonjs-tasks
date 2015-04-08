@@ -40,6 +40,8 @@ in a different directory, make sure you path reference in the gulpfile according
 $ mkdir tasks
 ```
 
+## Examples
+For examples, take a look at [the example repository](https://github.com/sytac/gulp-csj-tasks-example)
 
 ## Commonjs conventions as tasks
 
