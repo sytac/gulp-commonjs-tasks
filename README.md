@@ -2,6 +2,12 @@
 
 *Create gulp tasks using commonjs conventions*
 
+## Why?
+
+- Large gulp files are a pain
+- Ability to create self documenting tasks
+- Commonjs is fine pattern for creating tasks
+- Built-in sequences, rather than deps
 
 ## Usage
 
