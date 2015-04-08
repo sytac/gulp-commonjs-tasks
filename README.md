@@ -5,6 +5,8 @@
 
 ## Usage
 
+Create your `gulpfile.js`
+
 ```js
 
 // gulpfile.js
@@ -18,6 +20,7 @@ console.log('Added tasks', taskNames);
 
 ```
 
+And create a task module in `./lib/tasks/foo.js`
 
 ```js
 
@@ -27,7 +30,26 @@ module.exports = function (gulp){
 };
 
 function fooTask(done){
+	console.log('Foo!');
 	done();
 }
 
+```
+
+Open a shell and fire your fine new `foo` task:
+
+```bash
+$ gulp foo
+```
+
+
+
+Would be roughly equivalent to
+
+```js
+
+gulp.task('foo', function(done){
+	console.log('Foo!');
+	done();
+});
 ```
