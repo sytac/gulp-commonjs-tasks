@@ -1,6 +1,6 @@
 {
 	"name": "gulp-cjs-tasks",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Regular commonjs gulp tasks",
 	"main": "index.js",
 	"scripts": {
@@ -17,8 +17,10 @@
 	"license": "ISC",
 	"devDependencies": {},
 	"dependencies": {
-		"lodash": "^3.6.0",
 		"gulp": "^3.8.11",
+		"gulp-util": "^3.0.4",
+		"js-object-pretty-print": "^0.1.4",
+		"lodash": "^3.6.0",
 		"run-sequence": "^1.0.2"
 	}
 }

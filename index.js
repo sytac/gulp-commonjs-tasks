@@ -1,6 +1,11 @@
 'use strict';
 
-
-module.exports = {
-    taskLoader: require('./task-loader')
+module.exports = function(gulp) {
+	if (!gulp) {
+		throw new Error('Please provide gulp');
+	}
+	return {
+		taskLoader: require('./task-loader'),
+		help: require('./help')(gulp)
+	};
 };
