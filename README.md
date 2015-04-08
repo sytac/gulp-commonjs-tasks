@@ -11,6 +11,18 @@
 
 ## Usage
 
+Initialize a new project:
+
+```bash
+$ npm init
+```
+
+Install this library:
+
+```bash
+$ npm install --save-dev gulp-cjs-tasks
+```
+
 Create your `gulpfile.js`
 
 ```js
@@ -49,13 +61,27 @@ $ gulp foo
 ```
 
 
+### Help tasks
 
-Would be roughly equivalent to
+Create `./lib/tasks/help.js`:
 
 ```js
 
-gulp.task('foo', function(done){
-	console.log('Foo!');
-	done();
-});
+module.exports = function(gulp) {
+    var helpUtils = require('gulp-cjs-tasks/help')(gulp);
+
+    var tasks = {
+        help: {
+            fn: help,
+            help: 'Show help'
+        }
+    };
+
+    return tasks;
+
+    function help() {
+        helpUtils.show();
+    }
+}
+
 ```

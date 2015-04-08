@@ -1,6 +1,6 @@
 {
 	"name": "gulp-cjs-tasks",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"description": "Regular commonjs gulp tasks",
 	"main": "index.js",
 	"scripts": {
