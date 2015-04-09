@@ -51,7 +51,7 @@ Let's take a simple gulp task that does nothing but console.log something. Consi
 something like this:
 
 ```js
-gulp.task('foo', function(){
+gulp.task('foo', function(done){
     console.log('foo!');
     done();
 });
@@ -115,13 +115,15 @@ Or make it more nice and neat by hosting the task function:
 module.exports = function(gulp) {
     return {
         nicer: nicer
+    };
+
+    function nicer() {
+        return gulp.src('./foo')
+            .pipe(gulp.dest('./bar'));
     }
 };
 
-function nicer() {
-    return gulp.src('./foo')
-        .pipe(gulp.dest('./bar'));
-}
+
 
 ```
 

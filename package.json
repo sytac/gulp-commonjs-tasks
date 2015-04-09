@@ -1,26 +1,26 @@
 {
-	"name": "gulp-cjs-tasks",
-	"version": "0.1.1",
-	"description": "Regular commonjs gulp tasks",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/sytac/gulp-cjs-tasks.git"
-	},
-	"keywords": [
-		"gulpplugin"
-	],
-	"author": "",
-	"license": "GPLv3",
-	"devDependencies": {},
-	"dependencies": {
-		"gulp": "^3.8.11",
-		"gulp-util": "^3.0.4",
-		"js-object-pretty-print": "^0.1.4",
-		"lodash": "^3.6.0",
-		"run-sequence": "^1.0.2"
-	}
+    "name": "gulp-cjs-tasks",
+    "version": "0.1.2",
+    "description": "Regular commonjs gulp tasks",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sytac/gulp-cjs-tasks.git"
+    },
+    "keywords": [
+        "gulpplugin"
+    ],
+    "author": "",
+    "license": "GPLv3",
+    "devDependencies": {},
+    "dependencies": {
+        "gulp": "^3.8.11",
+        "gulp-util": "^3.0.4",
+        "js-object-pretty-print": "^0.1.4",
+        "lodash": "^3.6.0",
+        "run-sequence": "^1.0.2"
+    }
 }
