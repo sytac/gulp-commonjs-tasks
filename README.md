@@ -41,7 +41,7 @@ $ mkdir tasks
 ```
 
 ## Examples
-For examples, take a look at [the example repository](https://github.com/sytac/gulp-csj-tasks-example)
+For examples, take a look at [the example repository](https://github.com/sytac/gulp-cjs-tasks-examples)
 
 ## Commonjs conventions as tasks
 
