@@ -3,6 +3,17 @@ var fs = require('fs'),
     path = require('path');
 
 module.exports = function taskLoader(taskDir, gulp) {
+
+    var customOptions = ['usage',
+        'description',
+        'priority',
+        'seq',
+        'options',
+        'isDefault'
+    ];
+
+    var defaultTaskNames = [];
+
     var args = [];
     if (arguments.length > 0) {
         args = Array.prototype.slice.call(arguments)
@@ -36,7 +47,6 @@ module.exports = function taskLoader(taskDir, gulp) {
 
                 if (moduleExports === 'object') {
                     tasks = require(taskDir + path.sep + file);
-
                 }
                 // let's assume it's an object
                 if (lang.isFunction(tasks)) {
@@ -57,6 +67,9 @@ module.exports = function taskLoader(taskDir, gulp) {
                                 taskArgs.push([]);
                                 taskArgs.push(task);
                             } else if (lang.isObject(task)) {
+                                if (task.isDefault) {
+                                    defaultTaskNames.push(taskName);
+                                }
                                 if (task.seq) {
                                     if (!task.fn) {
                                         task.fn = function(done) {
@@ -102,10 +115,6 @@ module.exports = function taskLoader(taskDir, gulp) {
                                 gulp.task.apply(gulp,
                                     taskArgs);
 
-                                var customOptions = ['usage',
-                                    'help', 'priority', 'seq',
-                                    'isDefault'
-                                ];
 
                                 customOptions.map(function(
                                     customOption) {
@@ -125,5 +134,8 @@ module.exports = function taskLoader(taskDir, gulp) {
             }
         });
 
+    if (defaultTaskNames.length) {
+        gulp.task('default', defaultTaskNames);
+    }
     return taskNames;
 }

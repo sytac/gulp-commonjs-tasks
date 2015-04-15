@@ -1,4 +1,4 @@
 module.exports = {
-	taskLoader: require('./task-loader'),
-	help: require('./help')
+    taskLoader: require('./task-loader'),
+    taskInfo: require('./task-info')
 };

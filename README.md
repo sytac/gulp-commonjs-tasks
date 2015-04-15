@@ -4,10 +4,15 @@
 
 ## Why?
 
-- Large gulp files are a pain
-- Ability to create self documenting tasks
-- Commonjs is a fine pattern for creating tasks
-- Built-in sequences, rather than deps
+- Large gulp files are a pain.
+- Ability to create self documenting tasks.
+- Commonjs is a fine pattern for creating tasks.
+- Built-in sequences, rather than dependencies.
+- Gulpfiles are hard to unit test. [^1]
+
+
+[^1]: I haven't figured out how much sense there is in unit testing gulp tasks, but hey, it's an argument, right?
+
 
 ## Installation
 
@@ -34,18 +39,130 @@ taskLoader(__dirname + '/tasks', gulp);
 ```
 
 Create a `./tasks` directory, this is where you tasks will go. If you'd like your tasks
-in a different directory, make sure you path reference in the gulpfile accordingly.
+in a different directory, make sure you set path reference in the gulpfile accordingly.
 
 ```bash
 $ mkdir tasks
 ```
 
 ## Examples
+
 For examples, take a look at [the example repository](https://github.com/sytac/gulp-cjs-tasks-examples)
 
 ## Commonjs conventions as tasks
 
-### Simple
+### Complete specification
+
+A regular gulp task consists of a task name, an optional array of dependent task names, and a callback function.
+
+```js
+gulp.task('first-task', ['second-task', 'third-task'], function firstTask(done) {
+	console.log('do something useful');
+	done();
+});
+```
+
+A regular commonjs module would look like below.
+
+```js
+module.exports = function(gulp) {
+	return {
+		'first-task': {
+			fn: function firstTask(done) {
+				console.log('do something useful');
+				done();
+			},
+			dep: ['second-task', 'third-task']
+		}
+	};
+};
+```
+
+Let's add something like `runSequence` to execute the `dep` tasks in sequence rather than parallel.
+
+```js
+gulp.task('first-task', function task1(done) {
+	runSequence('second-task', 'third-task', function (err) {
+		console.log('do something useful');
+		done(err);
+	});
+});
+```
+
+```js
+module.exports = function(gulp) {
+	return {
+		'first-task': {
+			fn: function firstTask(done) {
+				console.log('do something useful');
+				done();
+			},
+			seq: ['second-task', 'third-task']
+		}
+	};
+};
+```
+
+```js
+gulp.task('third-task', function firstTask(done) {
+	runSequence('second-task', 'third-task', function (err) {
+		console.log('do something useful');
+		done(err);
+	});
+}).help = {
+	'' : 'A bit of help',
+	'--arg1': 'An optional parameter',
+	'--arg2': 'Another optional parameter'
+};
+```
+
+```js
+module.exports = function(gulp) {
+	return {
+		'first-task': {
+			fn: function firstTask(done) {
+				console.log('do something useful');
+				done();
+			},
+			seq: ['second-task', 'third-task'],
+			description: 'A bit of help',
+			options : {
+				'--option1': 'An optional parameter',
+				'--option2': 'Another optional parameter'
+			}
+		}
+	};
+};
+```
+
+```js
+module.exports = function(gulp) {
+	return {
+		'first-task': {
+			fn: firstTask,
+			description: 'A bit of help',
+			options : {
+				'--option1': 'An optional parameter',
+				'--option2': 'Another optional parameter'
+			},
+			dep: ['second-task', 'third-task'],
+			priority: 10000,
+			isDefault: false
+		}
+	};
+
+	function firstTask(done) {
+		console.log('do something useful');
+		done();
+	}
+};
+```
+
+
+
+### From the ground up
+
+#### Export a function
 
 Let's take a simple gulp task that does nothing but console.log something. Consider
 something like this:
@@ -76,8 +193,8 @@ module.exports = function() {
 	};
 };
 
+#### Export an object
 ```
-
 Since you might have the need to group tasks in single file, you can also export
 an object, in which each key is a task name, and each value is a task function.
 
@@ -111,7 +228,6 @@ module.exports = function(gulp) {
 Or make it more nice and neat by hosting the task function:
 
 ```js
-
 module.exports = function(gulp) {
     return {
         nicer: nicer
