@@ -4,7 +4,7 @@
 	"description": "Regular commonjs gulp tasks",
 	"main": "index.js",
 	"scripts": {
-		"test": "mocha ./test/**/*.spec.js"
+		"test": "node_modules/.bin/mocha ./test/**/*.spec.js"
 	},
 	"engines": {
 		"node": "0.10.x"
