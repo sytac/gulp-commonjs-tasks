@@ -3,7 +3,6 @@
 [ ![Codeship Status for sytac/gulp-cjs-tasks](https://codeship.com/projects/67d81b70-c65a-0132-5355-3297e6cd1d5c/status?branch=master)](https://codeship.com/projects/74623)
 
 
-
 # gulp-cjs-tasks
 
 *Create gulp tasks using commonjs conventions*
