@@ -12,7 +12,6 @@
 - Built-in sequences, rather than dependencies.
 - Gulpfiles are hard to unit test. [^1]
 
-
 [^1]: I haven't figured out how much sense there is in unit testing gulp tasks, but hey, it's an argument, right?
 
 
