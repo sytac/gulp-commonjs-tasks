@@ -3,18 +3,37 @@ var taskInfo = require('../task-info/');
 var expect = require('expect.js');
 
 describe('taskInfo', function() {
-	describe('#return object', function() {
-		it('should return an object containing getTasks and cliInfo', function() {
-			assert.equal(true, taskInfo({})
-				.getTasks);
-		});
-	});
+    describe('#when called', function() {
+        it(
+            'should return an object',
+            function() {
+                expect(taskInfo({}))
+                    .to.be.an('object');
+            });
+        it(
+            'should return an object containing getTasks and cliHelp functions',
+            function() {
+                var info = taskInfo({});
+                console.log(info);
+                expect(info.getTasks)
+                    .to.be.a('function');
+                expect(info.cliHelp)
+                    .to.be.a('function');
+            });
+    });
+    describe('.taskInfo(gulp)', function() {
+        it(
+            'should return an object',
+            function() {
+                var _gulp = {
+                    tasks: {}
+                };
 
-	describe('#indexOf()', function() {
-		it('should return -1 when the value is not present',
-			function() {
-				assert.equal(-1, [1, 2, 3].indexOf(5));
-				assert.equal(-1, [1, 2, 3].indexOf(0));
-			})
-	})
+                var info = taskInfo(_gulp);
+                expect(info.getTasks())
+                    .to.be.an('object');
+            });
+
+    });
+
 })
