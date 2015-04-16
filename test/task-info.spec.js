@@ -29,6 +29,8 @@ describe('taskInfo', function() {
                     tasks: {}
                 };
 
+
+
                 var info = taskInfo(_gulp);
                 expect(info.getTasks())
                     .to.be.an('object');

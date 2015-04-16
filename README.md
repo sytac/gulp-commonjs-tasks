@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.org/sytac/gulp-cjs-tasks.svg)](https://travis-ci.org/sytac/gulp-cjs-tasks)
 
+[ ![Codeship Status for sytac/gulp-cjs-tasks](https://codeship.com/projects/67d81b70-c65a-0132-5355-3297e6cd1d5c/status?branch=master)](https://codeship.com/projects/74623)
+
+
+
 # gulp-cjs-tasks
 
 *Create gulp tasks using commonjs conventions*
@@ -11,6 +15,7 @@
 - Commonjs is a fine pattern for creating tasks.
 - Built-in sequences, rather than dependencies.
 - Gulpfiles are hard to unit test. [^1]
+
 
 [^1]: I haven't figured out how much sense there is in unit testing gulp tasks, but hey, it's an argument, right?
 
