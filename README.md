@@ -10,14 +10,16 @@
 
 ## Why?
 
-- Commonjs is a fine pattern for creating tasks.
-	- Smaller gulp files
-	- 
-- Smaller gulp files, because large gulp files are a pain.
-- Self documenting tasks, no need to update that README everytime.
-- Built-in sequences rather next to dependencies using [run-sequence](https://www.npmjs.com/package/run-sequence).
-- Anonymous dependent tasks and sequence tasks, because your files should stay clean.
-- Gulpfiles are hard to unit test.
+Because large gulpf files are a pain, are hard to test and commonjs is a fine 
+pattern for creating tasks.
+
+### Extras
+
+- Built in [run-sequence](https://www.npmjs.com/package/run-sequence) for more fine grained control over sequences.
+- Anonymous dependencies, no need to create a gulp task for every dependent or sequenced task.
+- Self documenting tasks on the command line.
+- Inheritence of optional task params.
+- Availability of task graph for your own needs.
 
 
 ## Installation
