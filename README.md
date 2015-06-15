@@ -10,7 +10,7 @@
 
 ## Why?
 
-Because large gulpf files are a pain, are hard to test and commonjs is a fine 
+Because large gulpfiles are a pain, are hard to test and commonjs is a fine 
 pattern for creating tasks.
 
 ### Extras
