@@ -2,9 +2,50 @@ var fs = require('fs'),
   lang = require('lodash/lang'),
   path = require('path'),
   util = require('util');
+var _task;
+var runSequence;
 
 module.exports = function taskLoader(taskDir, gulp) {
+  runSequence = require('run-sequence')
+    .use(gulp);
+  if (arguments.length < 2) {
+    throw 'Expecting at least two arguments: taskDir and gulp';
+  }
 
+  // let's first catch all the arguments here
+  var args = Array.prototype.slice.apply(arguments);
+
+  // let's add a state object we need to haul with the parser
+  var state = {
+    defaultTaskNames: [],
+    sequenceCount: 0
+  };
+
+  args.unshift(state);
+
+  var taskNames = [];
+
+  _task = function() {
+    var args = Array.prototype.slice.apply(arguments);
+    taskNames.push(args[0]);
+    console.log('_task', args);
+    return gulp.task.apply(gulp, args);
+  };
+
+  _parse.apply(this, args);
+
+  if (state.defaultTaskNames.length) {
+    _task('default', state.defaultTaskNames);
+  }
+  return {
+    task: _task,
+    taskNames: taskNames,
+    defaultTaskNames: state.defaultTaskNames
+  };
+};
+
+
+function _parse(state, taskDir, gulp) {
   var customOptions = ['usage',
     'description',
     'seq',
@@ -12,22 +53,14 @@ module.exports = function taskLoader(taskDir, gulp) {
     'isDefault'
   ];
 
-  var defaultTaskNames = [];
+  var args = Array.prototype.slice.call(arguments)
+    .splice(2);
 
-  var args = [];
-
-  var sequenceCount = 0;
   var currentPriority = -10;
 
-  if (arguments.length > 0) {
-    args = Array.prototype.slice.call(arguments)
-      .splice(1);
-  }
   // get all tasks
 
-  var runSequence = require('run-sequence')
-    .use(gulp),
-    taskNames = [];
+
 
   // todo: clean this mess up
   fs.readdirSync(taskDir)
@@ -61,76 +94,14 @@ module.exports = function taskLoader(taskDir, gulp) {
                 taskArgs.push([]);
                 taskArgs.push(task);
               } else if (lang.isObject(task)) {
-                if (task.isDefault) {
-                  defaultTaskNames.push(taskName);
-                }
-                if (task.seq) {
-                  sequenceCount++;
-                  var sequence = [];
-                  var seqIndex = 1;
-                  var anonCount = 0;
 
-                  var _p = function(seqTasks) {
-                    return seqTasks.map(function(seqTask) {
-                      if (lang.isString(seqTask)) {
-                        return seqTask;
-                      } else if (lang.isFunction(seqTask)) {
-                        var fnName = _functionName(seqTask);
-                        if (!fnName) {
-                          anonCount++;
-                          fnName = util.format('anonymous-%s',
-                            anonCount);
-                        }
+                // Check for default tasks
+                _defaultTasks(gulp, taskName, task, state);
 
+                // sequences
+                _sequences(gulp, taskName, task, state);
 
-                        var seqName = util.format(
-                          '%s-(index: %s, fnName: %s)', taskName,
-                          seqIndex, fnName);
-                        gulp.task.apply(gulp, [
-                          seqName, [],
-                          seqTask
-                        ]);
-
-                        console.log(_functionName(seqTask));
-
-                        seqIndex++;
-                        return seqName;
-                      } else if (lang.isArray(seqTask)) {
-                        console.log('array', seqTask);
-                        sequenceCount++;
-                        return _p(seqTask);
-                      }
-
-                    });
-                  }
-                  task.seq = _p(task.seq);
-                  if (!task.fn) {
-                    task.fn = function(done) {
-                      runSequence.apply(
-                        null, task.seq
-                        .concat(
-                          done));
-                    }
-                  } else {
-                    var subName = 'post-' +
-                      taskName;
-                    var origFn = task.fn;
-                    gulp.task.apply(gulp, [
-                      subName, [],
-                      origFn
-                    ]);
-
-                    task.fn = function(done) {
-                      runSequence.apply(
-                        null, task.seq
-                        .concat(
-                          subName
-                        )
-                        .concat(
-                          done));
-                    }
-                  }
-                }
+                // dependencies
                 var deps = [];
                 var depIndex = 1;
                 var anonCount = 0;
@@ -138,7 +109,7 @@ module.exports = function taskLoader(taskDir, gulp) {
                   task.dep.map(function(taskDep) {
                     var dep = taskDep;
                     if (lang.isFunction(taskDep)) {
-                      var fnName = _functionName(taskDep);
+                      var fnName = _getFunctionName(taskDep);
                       if (!fnName) {
                         anonCount++;
                         fnName = util.format('anonymous-%s',
@@ -147,7 +118,7 @@ module.exports = function taskLoader(taskDir, gulp) {
                       var depName = util.format(
                         '%s-(index: %s, fnName: %s)', taskName,
                         depIndex, fnName);
-                      gulp.task.apply(gulp, [
+                      _task.apply(gulp, [
                         depName, [],
                         taskDep
                       ]);
@@ -167,8 +138,7 @@ module.exports = function taskLoader(taskDir, gulp) {
               }
 
               if (taskArgs.length > 1) {
-                taskNames.push(taskArgs[0]);
-                gulp.task.apply(gulp,
+                _task.apply(gulp,
                   taskArgs);
 
                 // priority
@@ -181,6 +151,7 @@ module.exports = function taskLoader(taskDir, gulp) {
                   }
                   gulp.tasks[taskName].priority = priority;
                 }
+
                 customOptions.map(function(
                   customOption) {
                   var taskOption = task[
@@ -200,18 +171,101 @@ module.exports = function taskLoader(taskDir, gulp) {
         }
       }
     });
-
-  if (defaultTaskNames.length) {
-    gulp.task('default', defaultTaskNames);
-  }
-  return {
-    taskNames: taskNames
-  };
 }
 
-function _functionName(fun) {
-  var ret = fun.toString();
-  ret = ret.substr('function '.length);
-  ret = ret.substr(0, ret.indexOf('('));
-  return ret;
+function _defaultTasks(gulp, taskName, task, state) {
+  // default task(s)
+  if (task.isDefault) {
+    state.defaultTaskNames.push(taskName);
+  }
+}
+
+function _sequences(gulp, taskName, task, state) {
+  if (task.seq) {
+    state.sequenceCount++;
+    var sequence = [];
+
+    var localState = {
+      seqIndex: 1,
+      anonCount: 0
+    };
+
+
+    task.seq = _parseSequence(gulp, taskName, task.seq, state, localState);
+
+    // If task does not have a function assigned then create one...
+    if (!task.fn) {
+      task.fn = function(done) {
+        runSequence.apply(
+          null, task.seq
+          .concat(
+            done));
+      };
+
+    } else {
+      // ... otherwise chop it off, and place it in a new task at the very end
+      // of the sequence. Yes I could monkey patch the task function but that's
+      // a bit too ghetto I think.
+      var subName = 'post-' +
+        taskName;
+      var origFn = task.fn;
+      _task.apply(gulp, [
+        subName, [],
+        origFn
+      ]);
+
+      task.fn = function(done) {
+        runSequence.apply(
+          null, task.seq
+          .concat(
+            subName
+          )
+          .concat(
+            done));
+      };
+    }
+  }
+}
+
+function _parseSequence(gulp, taskName, seqTasks, state, localState) {
+
+  return seqTasks.map(function(seqTask) {
+    if (lang.isString(seqTask)) {
+      return seqTask;
+    } else if (lang.isFunction(seqTask)) {
+      var fnName = _getFunctionName(seqTask);
+      if (!fnName) {
+        localState.anonCount++;
+        fnName = util.format('anonymous-%s',
+          localState.anonCount);
+      }
+
+      var seqName = util.format(
+        '%s-(index: %s, fnName: %s)',
+        taskName,
+        localState.seqIndex, fnName);
+      _task.apply(gulp, [
+        seqName, [],
+        seqTask
+      ]);
+
+      console.log(_getFunctionName(seqTask));
+
+      localState.seqIndex++;
+      return seqName;
+    } else if (lang.isArray(seqTask)) {
+      console.log('array', seqTask);
+      state.sequenceCount++;
+      return _parseSequence(gulp, taskName, seqTask, state, localState);
+    }
+
+  });
+}
+
+
+function _getFunctionName(fn) {
+  var fnName = fn.toString();
+  fnName = fnName.substr('function '.length);
+  fnName = fnName.substr(0, fnName.indexOf('('));
+  return fnName;
 }
