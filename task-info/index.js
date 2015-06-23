@@ -1,10 +1,11 @@
 var assign = require('lodash/object/assign'),
 	flatten = require('lodash/array/flatten'),
+	gutil = require('gulp-util'),
 	lang = require('lodash/lang'),
 	padRight = require('lodash/string/padRight'),
 	sortBy = require('lodash/collection/sortBy'),
 	string = require('lodash/string'),
-	util = require('gulp-util');
+	util = require('util');
 
 var _widths;
 var _parsedTasks;
@@ -41,8 +42,8 @@ module.exports = function(gulp) {
 		tasks.forEach(function(task) {
 			task.inheritedOptionalOptions =
 				_traverseOptionalOptions(task);
-			task.fullOptionalOptions = assign({}, task
-				.options, task.inheritedOptionalOptions
+			task.fullOptionalOptions = assign({}, task.inheritedOptionalOptions, task
+				.options
 			);
 
 			var help = {};
@@ -59,43 +60,64 @@ module.exports = function(gulp) {
 		return _tasks ? _tasks : parseTasks(gulp.tasks);
 	}
 
-	function cliHelp() {
+	function cliHelp(config, env) {
 
 		var list = [];
-
 		var tasks = _tasks ? _tasks : parseTasks(gulp.tasks);
+		var baseColor = gutil.colors.cyan;
+		var subColor = gutil.colors.yellow;
+		var bold = gutil.colors.bold;
 
-		list.push(util.colors.bold('Usage'));
-		list.push('  gulp ' + util.colors.cyan('task') + ' [ ' + util
-			.colors
-			.green(
-				'option ...') + ' ]' + '\n');
-		list.push(util.colors.bold('Tasks'));
+		list.push(bold('Usage'));
+		list.push(util.format('  gulp %s [ %s ]', baseColor('task'), subColor(
+			'option ...')));
+
+		list.push(bold('Tasks'));
 
 		tasks.filter(function(task) {
 				return task.description;
 			})
 			.forEach(function(task) {
-				list.push('  ' + task.priority + ' ' + util.colors.cyan(
-						padRight(task.name,
-							_widths.main +
-							2)) + ' : ' +
-					task.description);
+				list.push(util.format('  %s : %s', baseColor(padRight(task.name,
+					_widths.main +
+					2)), task.description));
+
 				if (lang.isObject(task.fullOptionalOptions)) {
 					Object.keys(task.fullOptionalOptions)
 						.forEach(function(option) {
-
-							list.push('    ' + util.colors.green(
-									padRight(option,
-										_widths.sub +
-										2)) + ' : ' +
-								task.fullOptionalOptions[
-									option]
-							);
-
+							list.push(util.format('    %s : %s ', subColor(
+								padRight(option,
+									_widths.sub +
+									2)), task.fullOptionalOptions[
+								option]));
 						});
 				}
 			});
+
+
+		if (env.all) {
+			list.push('\n');
+			list.push(bold('Tasks without description'));
+			tasks.filter(function(task) {
+					return !task.description;
+				})
+				.forEach(function(task) {
+					list.push(util.format('  %s', baseColor(padRight(task.name,
+						_widths.main +
+						2))));
+
+					if (lang.isObject(task.fullOptionalOptions)) {
+						Object.keys(task.fullOptionalOptions)
+							.forEach(function(option) {
+								list.push(util.format('    %s : %s ', subColor(
+									padRight(option,
+										_widths.sub +
+										2)), task.fullOptionalOptions[
+									option]));
+							});
+					}
+				});
+		}
 		return list.join('\n');
 	}
 
@@ -103,10 +125,13 @@ module.exports = function(gulp) {
 		options = options || {};
 
 		gulp.task('help', function() {
-			console.log(cliHelp());
+			console.log(cliHelp(options, gutil.env));
 		});
 
 		gulp.tasks.help.description = 'Show help';
+		gulp.tasks.help.options = {
+			'--all': 'Show all tasks'
+		};
 
 		gulp.tasks.help.priority = !lang.isUndefined(options.priority) ?
 			options.priority : 0;

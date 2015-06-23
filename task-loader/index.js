@@ -65,7 +65,8 @@ function _parse(state, taskDir, gulp) {
   // todo: clean this mess up
   fs.readdirSync(taskDir)
     .map(function(file) {
-      var stats = fs.statSync(taskDir + path.sep + file);
+      var fullPath = taskDir + path.sep + file;
+      var stats = fs.statSync(fullPath);
       if (stats.isFile() && path.extname(file) === '.js') {
         var tasks;
         var requiredTasks = require(taskDir + path.sep + file);
@@ -89,83 +90,92 @@ function _parse(state, taskDir, gulp) {
           Object.keys(tasks)
             .map(function(taskName) {
               var task = tasks[taskName];
-              var taskArgs = [taskName];
-              if (lang.isFunction(task)) {
-                taskArgs.push([]);
-                taskArgs.push(task);
-              } else if (lang.isObject(task)) {
 
-                // Check for default tasks
-                _defaultTasks(gulp, taskName, task, state);
+              if (!lang.isFunction(task.fn)) {
+                console.log(util.format(
+                  'Task `%s` in `%s`: fn property missing or is not a function',
+                  taskName, fullPath));
+              } else {
 
-                // sequences
-                _sequences(gulp, taskName, task, state);
 
-                // dependencies
-                var deps = [];
-                var depIndex = 1;
-                var anonCount = 0;
-                if (lang.isArray(task.dep)) {
-                  task.dep.map(function(taskDep) {
-                    var dep = taskDep;
-                    if (lang.isFunction(taskDep)) {
-                      var fnName = _getFunctionName(taskDep);
-                      if (!fnName) {
-                        anonCount++;
-                        fnName = util.format('anonymous-%s',
-                          anonCount);
+                var taskArgs = [taskName];
+                if (lang.isFunction(task)) {
+                  taskArgs.push([]);
+                  taskArgs.push(task);
+                } else if (lang.isObject(task)) {
+
+                  // Check for default tasks
+                  _defaultTasks(gulp, taskName, task, state);
+
+                  // sequences
+                  _sequences(gulp, taskName, task, state);
+
+                  // dependencies
+                  var deps = [];
+                  var depIndex = 1;
+                  var anonCount = 0;
+                  if (lang.isArray(task.dep)) {
+                    task.dep.map(function(taskDep) {
+                      var dep = taskDep;
+                      if (lang.isFunction(taskDep)) {
+                        var fnName = _getFunctionName(taskDep);
+                        if (!fnName) {
+                          anonCount++;
+                          fnName = util.format('anonymous-%s',
+                            anonCount);
+                        }
+                        var depName = util.format(
+                          '%s-(index: %s, fnName: %s)', taskName,
+                          depIndex, fnName);
+                        _task.apply(gulp, [
+                          depName, [],
+                          taskDep
+                        ]);
+                        depIndex++;
+                        dep = depName;
+                        console.log('--', depName);
                       }
-                      var depName = util.format(
-                        '%s-(index: %s, fnName: %s)', taskName,
-                        depIndex, fnName);
-                      _task.apply(gulp, [
-                        depName, [],
-                        taskDep
-                      ]);
-                      depIndex++;
-                      dep = depName;
-                      console.log('--', depName);
+                      deps.push(dep);
+                    });
+                  }
+                  taskArgs.push(deps);
+                  if (task.fn) {
+                    taskArgs.push(task.fn);
+                  }
+                } else if (lang.isArray(task)) {
+                  taskArgs.push(task);
+                }
+
+                if (taskArgs.length > 1) {
+                  _task.apply(gulp,
+                    taskArgs);
+
+                  // priority
+                  if (task.description) {
+
+                    var priority = task.priority;
+                    if (!priority) {
+                      priority = currentPriority;
+                      currentPriority = currentPriority - 10;
                     }
-                    deps.push(dep);
+                    gulp.tasks[taskName].priority = priority;
+                  }
+
+                  customOptions.map(function(
+                    customOption) {
+                    var taskOption = task[
+                      customOption];
+
+                    if (taskOption) {
+
+                      gulp.tasks[taskName]
+                        [
+                          customOption
+                        ] = taskOption;
+                    }
                   });
+
                 }
-                taskArgs.push(deps);
-                if (task.fn) {
-                  taskArgs.push(task.fn);
-                }
-              } else if (lang.isArray(task)) {
-                taskArgs.push(task);
-              }
-
-              if (taskArgs.length > 1) {
-                _task.apply(gulp,
-                  taskArgs);
-
-                // priority
-                if (task.description) {
-
-                  var priority = task.priority;
-                  if (!priority) {
-                    priority = currentPriority;
-                    currentPriority = currentPriority - 10;
-                  }
-                  gulp.tasks[taskName].priority = priority;
-                }
-
-                customOptions.map(function(
-                  customOption) {
-                  var taskOption = task[
-                    customOption];
-
-                  if (taskOption) {
-
-                    gulp.tasks[taskName]
-                      [
-                        customOption
-                      ] = taskOption;
-                  }
-                });
-
               }
             });
         }
