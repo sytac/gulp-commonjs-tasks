@@ -1,11 +1,19 @@
+'use strict';
+
 var fs = require('fs'),
+  gutil = require('gulp-util'),
   lang = require('lodash/lang'),
   path = require('path'),
+  taskInfo = require('../task-info'),
   util = require('util');
 var _task;
 var runSequence;
 
-module.exports = function taskLoader(taskDir, gulp) {
+module.exports = {
+  load: load
+};
+
+function load(taskDir, gulp) {
   runSequence = require('run-sequence')
     .use(gulp);
   if (arguments.length < 2) {
@@ -26,10 +34,9 @@ module.exports = function taskLoader(taskDir, gulp) {
   var taskNames = [];
 
   _task = function() {
-    var args = Array.prototype.slice.apply(arguments);
-    taskNames.push(args[0]);
-    console.log('_task', args);
-    return gulp.task.apply(gulp, args);
+    var taskArgs = Array.prototype.slice.apply(arguments);
+    taskNames.push(taskArgs[0]);
+    return gulp.task.apply(gulp, taskArgs);
   };
 
   _parse.apply(this, args);
@@ -37,13 +44,43 @@ module.exports = function taskLoader(taskDir, gulp) {
   if (state.defaultTaskNames.length) {
     _task('default', state.defaultTaskNames);
   }
-  return {
-    task: _task,
-    taskNames: taskNames,
-    defaultTaskNames: state.defaultTaskNames
-  };
-};
+  var info = taskInfo(gulp);
 
+  var cjsTasks = {
+    taskNames: taskNames,
+    defaultTaskNames: state.defaultTaskNames,
+    info: info,
+    addHelpTask: addHelpTask.bind(this, gulp, info)
+  };
+
+  gulp.cjsTasks = cjsTasks;
+  return cjsTasks;
+}
+
+function addHelpTask(gulp, info, options) {
+  options = options || {};
+
+  gulp.task('help', function() {
+    console.log(info.cliHelp(options, gutil.env));
+  });
+
+  gulp.tasks.help.description = 'Show help';
+  gulp.tasks.help.options = {
+    '--all': 'Show all tasks'
+  };
+
+  gulp.tasks.help.priority = !lang.isUndefined(options.priority) ?
+    options.priority : 0;
+  if (lang.isUndefined(options.isDefault) || options.isDefault === true) {
+    var defaultTask = gulp.tasks.default;
+    if (defaultTask) {
+
+      defaultTask.dep.push('help');
+    } else {
+      gulp.task('default', ['help']);
+    }
+  }
+}
 
 function _parse(state, taskDir, gulp) {
   var customOptions = ['usage',
@@ -59,8 +96,6 @@ function _parse(state, taskDir, gulp) {
   var currentPriority = -10;
 
   // get all tasks
-
-
 
   // todo: clean this mess up
   fs.readdirSync(taskDir)
@@ -88,94 +123,85 @@ function _parse(state, taskDir, gulp) {
         // let's assume it's an object
         if (lang.isObject(tasks)) {
           Object.keys(tasks)
-            .map(function(taskName) {
-              var task = tasks[taskName];
+            .map(function(taskName2) {
+              var task = tasks[taskName2];
 
-              if (!lang.isFunction(task.fn)) {
-                console.log(util.format(
-                  'Task `%s` in `%s`: fn property missing or is not a function',
-                  taskName, fullPath));
-              } else {
+              var taskArgs = [taskName2];
+              if (lang.isFunction(task)) {
+                taskArgs.push([]);
+                taskArgs.push(task);
+              } else if (lang.isObject(task)) {
 
+                // Check for default tasks
+                _defaultTasks(gulp, taskName2, task, state);
 
-                var taskArgs = [taskName];
-                if (lang.isFunction(task)) {
-                  taskArgs.push([]);
-                  taskArgs.push(task);
-                } else if (lang.isObject(task)) {
+                // sequences
+                _sequences(gulp, taskName2, task, state);
 
-                  // Check for default tasks
-                  _defaultTasks(gulp, taskName, task, state);
-
-                  // sequences
-                  _sequences(gulp, taskName, task, state);
-
-                  // dependencies
-                  var deps = [];
-                  var depIndex = 1;
-                  var anonCount = 0;
-                  if (lang.isArray(task.dep)) {
-                    task.dep.map(function(taskDep) {
-                      var dep = taskDep;
-                      if (lang.isFunction(taskDep)) {
-                        var fnName = _getFunctionName(taskDep);
-                        if (!fnName) {
-                          anonCount++;
-                          fnName = util.format('anonymous-%s',
-                            anonCount);
-                        }
-                        var depName = util.format(
-                          '%s-(index: %s, fnName: %s)', taskName,
-                          depIndex, fnName);
-                        _task.apply(gulp, [
-                          depName, [],
-                          taskDep
-                        ]);
-                        depIndex++;
-                        dep = depName;
-                        console.log('--', depName);
+                // dependencies
+                var deps = [];
+                var depIndex = 1;
+                var anonCount = 0;
+                if (lang.isArray(task.dep)) {
+                  task.dep.map(function(taskDep) {
+                    var dep = taskDep;
+                    if (lang.isFunction(taskDep)) {
+                      var fnName = _getFunctionName(taskDep);
+                      if (!fnName) {
+                        anonCount++;
+                        fnName = util.format('anonymous-%s',
+                          anonCount);
                       }
-                      deps.push(dep);
-                    });
-                  }
-                  taskArgs.push(deps);
-                  if (task.fn) {
-                    taskArgs.push(task.fn);
-                  }
-                } else if (lang.isArray(task)) {
-                  taskArgs.push(task);
-                }
-
-                if (taskArgs.length > 1) {
-                  _task.apply(gulp,
-                    taskArgs);
-
-                  // priority
-                  if (task.description) {
-
-                    var priority = task.priority;
-                    if (!priority) {
-                      priority = currentPriority;
-                      currentPriority = currentPriority - 10;
+                      var depName = util.format(
+                        '%s-(index: %s, fnName: %s)', taskName2,
+                        depIndex, fnName);
+                      _task.apply(gulp, [
+                        depName, [],
+                        taskDep
+                      ]);
+                      depIndex++;
+                      dep = depName;
+                      console.log('--', depName);
                     }
-                    gulp.tasks[taskName].priority = priority;
-                  }
-
-                  customOptions.map(function(
-                    customOption) {
-                    var taskOption = task[
-                      customOption];
-
-                    if (taskOption) {
-
-                      gulp.tasks[taskName]
-                        [
-                          customOption
-                        ] = taskOption;
-                    }
+                    deps.push(dep);
                   });
-
                 }
+                taskArgs.push(deps);
+                if (task.fn) {
+                  taskArgs.push(task.fn);
+                }
+              } else if (lang.isArray(task)) {
+                taskArgs.push(task);
+              }
+
+              if (taskArgs.length > 1) {
+                _task.apply(gulp,
+                  taskArgs);
+
+                // priority
+                if (task.description) {
+
+                  var priority = task.priority;
+                  if (!priority) {
+                    priority = currentPriority;
+                    currentPriority = currentPriority - 10;
+                  }
+                  gulp.tasks[taskName2].priority = priority;
+                }
+
+                customOptions.map(function(
+                  customOption) {
+                  var taskOption = task[
+                    customOption];
+
+                  if (taskOption) {
+
+                    gulp.tasks[taskName2]
+                      [
+                        customOption
+                      ] = taskOption;
+                  }
+                });
               }
             });
         }
@@ -193,7 +219,6 @@ function _defaultTasks(gulp, taskName, task, state) {
 function _sequences(gulp, taskName, task, state) {
   if (task.seq) {
     state.sequenceCount++;
-    var sequence = [];
 
     var localState = {
       seqIndex: 1,
@@ -268,7 +293,6 @@ function _parseSequence(gulp, taskName, seqTasks, state, localState) {
       state.sequenceCount++;
       return _parseSequence(gulp, taskName, seqTask, state, localState);
     }
-
   });
 }
 

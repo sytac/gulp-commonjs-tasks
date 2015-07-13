@@ -1,37 +1,38 @@
 {
-	"name": "gulp-cjs-tasks",
-	"version": "1.0.0",
-	"description": "Regular commonjs gulp tasks",
-	"main": "index.js",
-	"scripts": {
-		"test": "mocha ./test/**/*.spec.js",
-		"foo": "gulp"
-	},
-	"engines": {
-		"node": "0.10.x"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/sytac/gulp-cjs-tasks.git"
-	},
-	"keywords": [
-		"gulp",
-		"commonjs",
-		"sequence"
-	],
-	"author": "JP Wesselink <jpwesselink@gmail.com>",
-	"license": "GPL-3.0",
-	"devDependencies": {
-		"expect.js": "^0.3.1",
-		"istanbul": "^0.3.13",
-		"mocha": "^2.2.4",
-		"sinon": "^1.14.1"
-	},
-	"dependencies": {
-		"gulp": "^3.8.11",
-		"gulp-util": "^3.0.4",
-		"js-object-pretty-print": "^0.1.4",
-		"lodash": "^3.6.0",
-		"run-sequence": "^1.0.2"
-	}
+  "name": "gulp-cjs-tasks",
+  "version": "1.0.0",
+  "description": "Regular commonjs gulp tasks",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha ./test/**/*.spec.js",
+    "foo": "gulp"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sytac/gulp-cjs-tasks.git"
+  },
+  "keywords": [
+    "gulp",
+    "commonjs",
+    "sequence"
+  ],
+  "author": "JP Wesselink <jpwesselink@gmail.com>",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "eslint": "^0.24.1",
+    "expect.js": "^0.3.1",
+    "istanbul": "^0.3.13",
+    "mocha": "^2.2.4",
+    "sinon": "^1.14.1"
+  },
+  "dependencies": {
+    "gulp": "^3.8.11",
+    "gulp-util": "^3.0.4",
+    "js-object-pretty-print": "^0.1.4",
+    "lodash": "^3.6.0",
+    "run-sequence": "^1.0.2"
+  }
 }

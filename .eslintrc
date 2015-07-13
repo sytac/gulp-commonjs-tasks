@@ -1,0 +1,32 @@
+{
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    "indent": [
+      2,
+      2
+    ],
+    "no-use-before-define": 0,
+
+    "strict": 2,
+    "no-comma-dangle": 2,
+    "no-unused-expressions": 2,
+    "block-scoped-var": 2,
+    "eol-last": 2,
+    "dot-notation": 2,
+    "consistent-return": 2,
+    "no-unused-vars": [2, {
+      "vars": "all",
+      "args": "after-used"
+    }],
+    "quotes": [
+      2,
+      "single"
+    ],
+
+    "no-underscore-dangle": 0
+
+  }
+}
