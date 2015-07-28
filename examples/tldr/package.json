@@ -1,0 +1,19 @@
+{
+  "name": "gulp-commonjs-tasks-examples-tldr",
+  "version": "1.0.0",
+  "description": "Example of all functionality presented for the TL;DR mindset",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-commonjs-tasks": "1.0.0",
+    "gulp-util": "^3.0.4",
+    "q": "^1.4.1"
+  },
+  "author": "JP Wesselink <jpwesselink@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+  }
+}
