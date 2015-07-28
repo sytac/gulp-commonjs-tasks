@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/sytac/gulp-cjs-tasks.svg)](https://travis-ci.org/sytac/gulp-cjs-tasks)
 
-[ ![Codeship Status for sytac/gulp-cjs-tasks](https://codeship.com/projects/67d81b70-c65a-0132-5355-3297e6cd1d5c/status?branch=master)](https://codeship.com/projects/74623)
+[ ![Codeship Status for sytac/gulp-commonjs-tasks](https://codeship.com/projects/67d81b70-c65a-0132-5355-3297e6cd1d5c/status?branch=master)](https://codeship.com/projects/93633)
 
 # gulp-commonjs-tasks
 _Gulp tasks as CommonJS modules_
