@@ -1,5 +1,5 @@
 {
-  "name": "gulp-cjs-tasks",
+  "name": "gulp-commonjs-tasks",
   "version": "1.0.0",
   "description": "Regular commonjs gulp tasks",
   "main": "index.js",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sytac/gulp-cjs-tasks.git"
+    "url": "https://github.com/sytac/gulp-commonjs-tasks.git"
   },
   "keywords": [
     "gulp",
