@@ -9,8 +9,7 @@
     "task-loader"
   ],
   "scripts": {
-    "test": "mocha ./test/**/*.spec.js",
-    "postinstall" : "cd node_modules && ln -s ./ node_modules/gulp-commonjs-tasks && cd .."
+    "test": "mocha ./test/**/*.spec.js"
   },
   "engines": {
     "node": "0.10.x"
@@ -30,6 +29,7 @@
     "cli-tree": "0.0.1",
     "eslint": "^0.24.1",
     "expect.js": "^0.3.1",
+    "globule": "^0.2.0",
     "gulp-template": "^3.0.0",
     "istanbul": "^0.3.13",
     "mocha": "^2.2.4",

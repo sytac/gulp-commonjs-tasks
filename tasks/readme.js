@@ -53,7 +53,7 @@ module.exports = function (gulp) {
           '\n');
       }
     }, {
-      base: './templates/partials/',
+      base: './templates/_partials/',
       src: '**/*.md'
     }].map(function (parseable) {
 
@@ -145,7 +145,7 @@ module.exports = function (gulp) {
 
     tree(templateData);
 
-    return gulp.src('./templates/*.md')
+    return gulp.src('./templates/!(_partials)/*.md', { cwd: './'})
       .pipe(template(templateData))
       .pipe(gulp.dest('./'));
   }
