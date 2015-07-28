@@ -145,7 +145,7 @@ module.exports = function (gulp) {
 
     tree(templateData);
 
-    return gulp.src('./templates/!(_partials)/*.md', { cwd: './'})
+    return gulp.src(['./templates/!(_partials)/*.md', './templates/*.md'], { cwd: './'})
       .pipe(template(templateData))
       .pipe(gulp.dest('./'));
   }
