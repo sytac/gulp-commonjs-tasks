@@ -1,4 +1,3 @@
-var assert = require("assert");
 var taskInfo = require('../task-info/');
 var expect = require('expect.js');
 

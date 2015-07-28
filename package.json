@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Regular commonjs gulp tasks",
   "main": "index.js",
+  "files" : ["index.js", "task-info", "task-loader"],
   "scripts": {
-    "test": "mocha ./test/**/*.spec.js",
-    "foo": "gulp"
+    "test": "mocha ./test/**/*.spec.js"
   },
   "engines": {
     "node": "0.10.x"

@@ -12,11 +12,11 @@ var _widths;
 var _parsedTasks;
 var _tasks;
 
-module.exports = function(gulp) {
+module.exports = function (gulp) {
 
   var help = {
     cliHelp: cliHelp,
-    getTasks: getTasks
+    taskTree: taskTree
   };
 
   return help;
@@ -30,20 +30,21 @@ module.exports = function(gulp) {
 
     var tasks = sortBy(Object.keys(
         gulpTasks)
-      .map(function(taskName) {
+      .map(function (taskName) {
         var task = _parseTask(gulpTasks[
           taskName]);
         _parsedTasks[taskName] = task;
         return task;
       }),
-      function(task) {
+      function (task) {
         return task.priority ? -task.priority : 0;
       });
 
-    tasks.forEach(function(task) {
+    tasks.forEach(function (task) {
       task.inheritedOptionalOptions =
         _traverseOptionalOptions(task);
-      task.fullOptionalOptions = assign({}, task.inheritedOptionalOptions, task
+      task.fullOptionalOptions = assign({}, task.inheritedOptionalOptions,
+        task
         .options
       );
 
@@ -52,11 +53,11 @@ module.exports = function(gulp) {
     return tasks;
   }
 
-  function getTasks() {
+  function taskTree() {
     return _tasks ? _tasks : parseTasks(gulp.tasks);
   }
 
-  function cliHelp(config, env) {
+  function cliHelp(env) {
     var tasks = _tasks ? _tasks : parseTasks(gulp.tasks);
 
 
@@ -71,17 +72,17 @@ module.exports = function(gulp) {
 
     list.push(bold('Tasks'));
 
-    tasks.filter(function(task) {
+    tasks.filter(function (task) {
         return task.description;
       })
-      .forEach(function(task) {
+      .forEach(function (task) {
         list.push(util.format('  %s : %s', baseColor(padRight(task.name,
           _widths.main +
           2)), task.description));
 
         if (lang.isObject(task.fullOptionalOptions)) {
           Object.keys(task.fullOptionalOptions)
-            .forEach(function(option) {
+            .forEach(function (option) {
               list.push(util.format('    %s : %s ', subColor(
                 padRight(option,
                   _widths.sub +
@@ -94,17 +95,17 @@ module.exports = function(gulp) {
     if (env.a || env.all) {
       list.push('\n');
       list.push(bold('Tasks without description'));
-      tasks.filter(function(task) {
+      tasks.filter(function (task) {
           return !task.description;
         })
-        .forEach(function(task) {
+        .forEach(function (task) {
           list.push(util.format('  %s', baseColor(padRight(task.name,
             _widths.main +
             2))));
 
           if (lang.isObject(task.fullOptionalOptions)) {
             Object.keys(task.fullOptionalOptions)
-              .forEach(function(option) {
+              .forEach(function (option) {
                 list.push(util.format('    %s : %s ', subColor(
                   padRight(option,
                     _widths.sub +
@@ -119,7 +120,7 @@ module.exports = function(gulp) {
 };
 
 function _parseTask(task) {
-  return lang.cloneDeep(task, function(value) {
+  return lang.cloneDeep(task, function (value) {
 
     if (lang.isObject(value)) {
       if (lang.isString(value.description)) {
@@ -131,7 +132,7 @@ function _parseTask(task) {
       if (lang.isObject(value.options)) {
         value.optionalOptions = assign.apply(null, [{}]
           .concat(Object.keys(value.options)
-            .filter(function(option) {
+            .filter(function (option) {
 
               _widths.sub = _widths.sub <
                 option.length ?
@@ -141,7 +142,7 @@ function _parseTask(task) {
               return option !==
                 '';
             })
-            .map(function(option) {
+            .map(function (option) {
               var helpOption = {};
               helpOption[option] =
                 value.options[
@@ -171,12 +172,12 @@ function _traverseOptionalOptions(task) {
       var a = flatten(allDeps, true);
 
       return assign.apply(null, [optionalOptions].concat(a.filter(
-          function(
+          function (
             dep) {
             return _parsedTasks[dep] && _parsedTasks[
               dep].options;
           })
-        .map(function(dep) {
+        .map(function (dep) {
           var depTask = _parsedTasks[dep];
 
           return assign({}, depTask.options,

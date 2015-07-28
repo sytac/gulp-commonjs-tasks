@@ -2,239 +2,712 @@
 
 [ ![Codeship Status for sytac/gulp-cjs-tasks](https://codeship.com/projects/67d81b70-c65a-0132-5355-3297e6cd1d5c/status?branch=master)](https://codeship.com/projects/74623)
 
-
-
-# gulp-cjs-tasks
-
-*Create gulp tasks using commonjs conventions*
+# gulp-commonjs-tasks
+_Gulp tasks as CommonJS modules_
 
 ## Why?
+Because large gulpfiles are a pain, CommonJS modules are fine for managing gulp tasks.
 
-Because large gulpfiles are a pain, are hard to test and commonjs is a fine 
-pattern for creating tasks.
-
-### Extras
-
-- Built in [run-sequence](https://www.npmjs.com/package/run-sequence) for more fine grained control over sequences.
-- Anonymous dependencies, no need to create a gulp task for every dependent or sequenced task.
+### Features
+- Gulp tasks as CommonJS modules.
+- Pass as many arguments as you need to your modules.
+- Built-in [run-sequence](https://www.npmjs.com/package/run-sequence) for more fine grained control over sequences.
+- Anonymous dependencies and sequences, no need to create a gulp task for every dependend or sequenced task.
+- Inheritance of optional task params.
 - Self documenting tasks on the command line.
-- Inheritence of optional task params.
-- Availability of task graph for your own needs.
+- Plays well with [gulp-load-plugins](https://www.npmjs.com/package/gulp-load-plugins).
 
-
-## Installation
-
-Install `gulp` and `gulp-cjs-tasks` dependencies.
+### Installation
+Install `gulp` and `gulp-commonjs-tasks` dependencies.
 
 ```bash
-$ npm install --save-dev gulp
-$ npm install --save-dev gulp-cjs-tasks
+$ npm install --save-dev gulp gulp-commonjs-tasks
 ```
 
-## Usage
+### Usage
+#### Gulp tasks as CommonJS modules
+Here's an example of your regular average gulpfile with some arbitrary tasks, a help task and a default task.
 
-Create a new `npm` based project first. If you already have that, you can skip this step.
+```js
+// ./examples/straight-gulp/gulpfile.js
 
-```bash
-$ mkdir project
-$ cd project
-$ npm init
+var gulp = require('gulp');
+
+gulp.task('first-task', function (done) {
+  done();
+});
+
+gulp.task('second-task', function (done) {
+  done();
+});
+
+var help = {
+  'first-task': 'My first task',
+  'second-task': 'My second task'
+};
+
+gulp.task('help', function () {
+  Object.keys(help).map(function (taskName) {
+    console.log(taskName + ' ' + help[taskName]);
+  });
+});
+
+gulp.task('default', ['help']);
+
 ```
+
+Let's try create the same with a CommonJS module.
 
 Create a `gulpfile.js` file and add the following:
 
 ```js
+// ./examples/commonjs/gulpfile.js
+
 var gulp = require('gulp');
 var taskLoader = require('gulp-cjs-tasks/task-loader');
 
-taskLoader(__dirname + '/tasks', gulp);
+// load tasks
+var tasksContext = taskLoader.load('./tasks', gulp);
+
+// Add the gulp help task
+tasksContext.addHelpTask();
+
 ```
 
-Create a `./tasks` directory, this is where you tasks will go. If you'd like your tasks
-in a different directory, make sure you set path reference in the gulpfile accordingly.
-
-```bash
-$ mkdir tasks
-```
-
-## Examples
-
-For examples, take a look at [the example repository](https://github.com/sytac/gulp-cjs-tasks-examples)
-
-## Usage
-This library consists of the following modules:
-
-- `task-loader` - A gulp task loader which loads all tasks from a given path
-- `task-info` - Utility for creating help on the CLI and help documentation
-
-## task-loader
-
-I'm assuming you know what a gulp task looks like, if not take a look [here](https://github.com/gulpjs/gulp/blob/v3.8.11/docs/API.md#gulptaskname-deps-fn) first.
-
-For brevity I will have all tasks take in a callback throughout the examples. Returning promises and streams will work fine as well.
-
-### Complete specification
-
-Consider the following task loader:
+Now let's create a module in `./tasks` and call it `simple.js`
 
 ```js
-taskLoader(__dirname + '/tasks', gulp, anArgument, anotherArgument);
+// ./examples/commonjs/tasks/simple.js
 
-```
+module.exports = function (gulp) {
 
-The only mandatory argument here is the first argument, which is expected to be `gulp` object. All following arguments are optional and are passed along to the task modules.
-
-A conceptual full fledged task module would look like this:
-
-
-```js
-
-// A reference to your gulp object
-// make sure you pass it along from your gulpfile
-module.exports = function (gulp, anArgument, anotherArgument){
-
-	var tasks = {
-
-		// the task name
-		'first-task' : {
-
-			// the task function
-			fn : firstTask,
-
-			// task dependencies
-			dep : ['dep-1', 'dep-2'],
-
-			// task sequence using run-sequence
-			seq : ['dep-3', ['dep-4', 'dep-5']],
-
-			// wether it is the default task
-			isDefault : true,
-
-			// help description
-			description : 'My fine task',
-
-			// help options
-			options : {
-				'--option1' : 'An optional argument'
-			},
-
-			// priority in help overview
-			priority : 100
-		}
-	};
-
-	return tasks;
-
-	function firstTask (done) {
-		done();
-	}
-};
-```
-
-This Commonjs module returns a function which takes in the `gulp` object as an argument. This argument is needed to access gulp tasks in other task files. It is not mandatory, but if you'd like to use `gulp.src()` for instance, you need it.
-
-After calling the returned function it will return an object which should consists of keys for task names and values for task definitions.
-
-### Short hand specification
-In this case the task name will be derived from the filename.
-If this file would be called `foo.js` the task name will
-be `foo`.
-
-#### Exporting an object
-
-```js
-// tasks/exporting-an-object.js
-module.exports = {
-	'exported-as-object' : function (done) {
-		console.log('exporting-an-object');
-		done();
-	}
-};
-```
-
-#### Exporting a function which returns a function
-
-Exporting a function wich returns a function will result in a task named after the base name of the file without the file extension. In this case `exporting-a-function`.
-
-```js
-// tasks/exporting-a-function.js
-module.exports = function(gulp) {
-  return function(done) {
-    console.log('exporting-a-function');
-    done();
-  };
-};
-```
-
-#### Exporting a function which returns an object.
-
-The regular flavor, since you have access to the shared gulp object and all other arguments passed to the task loader.
-
-```js
-// tasks/generic.js
-module.exports = function(gulp) {
-
-  return {
-    'generic': {
-      fn: regularTask
+  var tasks = {
+    'first-task': {
+      fn: firstTask,
+      description: 'My first task'
+    },
+    'second-task': {
+      fn: secondTask,
+      description: 'My second task'
     }
   };
 
-  function regularTask(done) {
-    console.log('generic');
+  return tasks;
+
+  function firstTask(done) {
+    done();
+  }
+
+  function secondTask(done) {
     done();
   }
 };
+
 ```
 
-### The task object
+The CommonJS module above returns a function which takes in the `gulp` object as an argument. This argument is needed to access gulp tasks in other task files. It is not mandatory, but if you'd like to use `gulp.src()` for instance, you need it.
 
-Task objects come in key value pairs. The values can be organized like so:
-
-```js
-{
-	// function value
-	'foo' : function(){},
-	// object value
-	'bar' : {
-		fn : function(){}
-	}
-}
-```
-
-
-#### Exporting
-
-```js
-module.exports = function (gulp) {
-	return {
-		'foo' : function (done) {
-			done();
-		}
-	};
-}
-```
-## task-info
-
-```js
-var taskInfo = require('gulp-cjs-tasks/task-info')(gulp);
-
-// Shows help on the console
-taskInfo();
+```bash
+[gulp-cjs-tasks-examples] cd examples/straight-gulp
+[straight-gulp] gulp
+[07:08:10] Using gulpfile ~/temp/gulp-cjs-tasks-examples/examples/straight-gulp/gulpfile.js
+[07:08:10] Starting 'help'...
+first-task My first task
+second-task My second task
+[07:08:10] Finished 'help' after 156 μs
+[07:08:10] Starting 'default'...
+[07:08:10] Finished 'default' after 7.22 μs
 ```
 
 ```bash
-Usage
+[gulp-cjs-tasks-examples] cd examples/commonjs
+[commonjs] gulp
+[07:06:08] Using gulpfile ~/gulp-cjs-tasks-examples/examples/commonjs/gulpfile.js
+[07:06:08] Starting 'help'...
+help Usage
   gulp task [ option ... ]
-
 Tasks
-  help                              : Show help
-  one                               : Task one
-  two                               : Task two
-  three                             : Task three
-  four                              : Task four
-  one-then-two                      : Tasks one then two
-  one-and-two-then-three            : Tasks one and two then three
-  one-and-two                       : Tasks one and two
-  one-and-two-then-three-and-four   : Tasks one and two then three and four
+  help          : Show help
+    -a, --all   : Also show tasks without descriptions
+  first-task    : My first task
+  second-task   : My second task
+[07:06:08] Finished 'help' after 1.87 ms
+[07:06:08] Starting 'default'...
+[07:06:08] Finished 'default' after 17 μs
 ```
+
+#### Argument passing
+Passing arguments to each gulp task module is easy.
+
+##### Passing multiple arguments
+In our gulp file we'll pass on `defaults` and `moreDefaults`.
+
+```js
+// ./examples/passing-multiple-arguments/gulpfile.js
+
+var gulp = require('gulp'),
+  path = require('path');
+
+var taskLoader = require('gulp-cjs-tasks/task-loader');
+
+var defaults = {
+  foo: 'foo!',
+  bar: 'bar!'
+};
+
+var moreDefaults = {
+  snafu: 'snafu!',
+  pebkac: 'pebkac!'
+};
+
+var tasks = taskLoader.load(path.resolve(__dirname, 'tasks'), gulp, defaults, moreDefaults);
+
+```
+
+In the task module `defaults` and `moreDefaults` are picked up.
+
+```js
+// ./examples/passing-multiple-arguments/tasks/multiple.js
+
+module.exports = function (gulp, defaults, moreDefaults) {
+  var tasks = {
+    'multiple': {
+      fn: function () {
+        console.log('second argument', defaults);
+        console.log('third argument', moreDefaults);
+      }
+    }
+  };
+
+  return tasks;
+};
+
+```
+
+##### Passing a gulp plugin loader
+The example above is not of much use in the real world, but passing on something like [gulp-load-plugins](https://www.npmjs.com/package/gulp-load-plugins) does make sense.
+
+We pass on `gulp-load-plugins` as `$`.
+
+```js
+// ./examples/gulp-load-plugins/gulpfile.js
+
+var gulp = require('gulp'),
+  path = require('path'),
+  $ = require('gulp-load-plugins')();
+
+var taskLoader = require('gulp-cjs-tasks/task-loader');
+
+var tasks = taskLoader.load(path.resolve(__dirname, 'tasks'), gulp, $);
+
+tasks.addHelpTask();
+
+```
+
+And we use it in a task to use `gulp-template`.
+
+```js
+// ./examples/gulp-load-plugins/tasks/readme.js
+
+module.exports = function (gulp, $) {
+  var tasks = {
+    'create-readme': {
+      fn: function () {
+        return gulp.src('./templates/README.md')
+          .pipe($.template({
+            foo: 'foo!',
+            bar: 'bar!'
+          }))
+          .pipe(gulp.dest('./'));
+      },
+      description: 'Create readme file'
+    }
+  };
+
+  return tasks;
+};
+
+```
+
+```bash
+[gulp-load-plugins] gulp create-readme
+[11:39:38] Using gulpfile ~/temp/gulp-cjs-tasks-examples/examples/gulp-load-plugins/gulpfile.js
+[11:39:38] Starting 'create-readme'...
+[11:39:38] Finished 'create-readme' after 71 ms
+[gulp-load-plugins] cat README.md
+# My read me
+
+Foo : foo!
+Bar : bar!
+```
+
+##### Loading external defaults
+Our gulp file
+
+```js
+// ./examples/external-defaults/gulpfile.js
+
+var gulp = require('gulp'),
+  path = require('path');
+
+var taskLoader = require('gulp-cjs-tasks/task-loader');
+
+var defaults = require('./defaults.json');
+
+var currentTasks = taskLoader.load(path.resolve(__dirname, 'tasks'), gulp, defaults);
+
+currentTasks.addHelpTask();
+
+```
+
+A bit of json containing the defaults
+
+```js
+// ./examples/external-defaults/defaults.json
+
+{
+  "foo": "Foo value",
+  "bar": "Bar value"
+}
+
+```
+
+Our task module
+
+```js
+// ./examples/external-defaults/tasks/external.js
+
+module.exports = function (gulp, defaults) {
+  var tasks = {
+    'external': {
+      fn: function () {
+        console.log('External defaults', defaults);
+      },
+      description: 'Displays external defaults'
+    }
+  };
+
+  return tasks;
+};
+
+```
+
+#### Dependencies
+Let's take a closer look at the `gulp.task` function.
+
+```js
+gulp.task('second', ['first'], function (done){
+  console.log('second');
+  done();
+});
+
+gulp.task('first', function (done) {
+  console.log('first');
+  done();
+});
+```
+
+If we run task `second`, then task `first` will be executed first.
+
+In our module format we add a `dep` property to provide the same functionality.
+
+```js
+// ./examples/dependencies/tasks/dependencies.js
+
+module.exports = function (gulp) {
+
+  var tasks = {
+    'first': {
+      fn: firstTask,
+      description: 'My first task'
+    },
+    'second': {
+      dep: ['first'],
+      fn: secondTask,
+      description: 'My second task'
+    }
+  };
+
+  return tasks;
+
+  function firstTask(done) {
+    done();
+  }
+
+  function secondTask(done) {
+    done();
+  }
+};
+
+```
+
+#### Referencing dependencies
+
+Instead of creating a task for every dependency we can also reference functions.
+
+```js
+// ./examples/dependency-referencing/tasks/dependencies.js
+
+module.exports = function (gulp) {
+
+  var tasks = {
+    'second': {
+      dep: [firstTask, 'otherTask', function () {
+        console.log('anonymous task');
+      }],
+      fn: lastTask,
+      description: 'My second task'
+    },
+    'otherTask': {
+      fn: otherTask
+    }
+  };
+
+  return tasks;
+
+  function firstTask(done) {
+    console.log('firstTask');
+    done();
+  }
+
+  function lastTask(done) {
+    console.log('lastTask');
+    done();
+  }
+
+  function otherTask(done) {
+    console.log('other task');
+    done();
+  }
+};
+
+```
+
+
+#### Sequences
+
+I don't know about you but if you want to have some control of when tasks will be executed you'll end up using something like `run-sequence` to avoid the mess of chaining tasks together.
+
+
+##### Introducing run-sequence
+
+Using [run-sequence](https://www.npmjs.com/package/run-sequence) we can run tasks in sequence rather than all at once before running a task.
+
+Here we have three tasks which are run in order by the `all` task. A `fn` property is not needed, but if you add it, it will executed when the sequence is done.
+
+```js
+// ./examples/sequences/tasks/sequence.js
+
+module.exports = function (gulp) {
+
+  var tasks = {
+    'first': {
+      fn: firstTask,
+      description: 'My first task'
+    },
+    'second': {
+      fn: secondTask,
+      description: 'My second task'
+    },
+    'third': {
+      fn: thirdTask,
+      description: 'My third task'
+    },
+    'all': {
+      seq: ['first', 'second', 'third'],
+      description: 'All three tasks'
+    },
+    'all-and-self': {
+      fn: lastTask,
+      seq: ['first', 'second', 'third'],
+      description: 'All three tasks'
+    }
+  };
+
+  return tasks;
+
+  function firstTask(done) {
+    done();
+  }
+
+  function secondTask(done) {
+    done();
+  }
+
+  function thirdTask(done) {
+    done();
+  }
+
+  function lastTask(done) {
+    done();
+  }
+};
+
+```
+
+##### Referencing sequences
+
+We are not bound to handing task names in the `seq` array. We can also use function names or anonymous functions.
+
+```js
+// ./examples/sequence-referencing/tasks/sequence.js
+
+module.exports = function (gulp) {
+
+  var tasks = {
+    'all': {
+      seq: [firstTask, secondTask, thirdTask],
+      description: 'All three tasks'
+    }
+  };
+
+  return tasks;
+
+  function firstTask(done) {
+    done();
+  }
+
+  function secondTask(done) {
+    done();
+  }
+
+  function thirdTask(done) {
+    done();
+  }
+};
+
+```
+
+We can also mix the type of objects a sequence array can take.
+
+```js
+// ./examples/sequence-mixed-referencing/tasks/sequence.js
+
+module.exports = function (gulp) {
+
+  var tasks = {
+    'first': {
+      fn: firstTask,
+      description: 'My first task'
+    },
+    'all': {
+      fn: lastTask,
+      seq: ['first', secondTask, function(done){
+        done();
+      }],
+      description: 'All three tasks'
+    }
+  };
+
+  return tasks;
+
+  function firstTask(done) {
+    done();
+  }
+
+  function secondTask(done) {
+    done();
+  }
+
+  function lastTask(done) {
+    done();
+  }
+
+};
+
+```
+
+#### Help
+
+##### Description
+
+As you probably have noticed by now, you can add a `description` property for every task. It can be used by the help task to provide some valuable information of what the task should do.
+
+```js
+// ./examples/description/tasks/description.js
+
+module.exports = function (gulp) {
+
+  var tasks = {
+    'info': {
+      fn: firstTask,
+      description: 'Shows info about this task'
+    },
+    'second-task': {
+      fn: secondTask,
+      description: 'Shows info about the second task',
+      options: {
+        '-f, --foo': 'Some stuff'
+      }
+    }
+  };
+
+  return tasks;
+
+  function firstTask(done) {
+    done();
+  }
+
+  function secondTask(done) {
+    done();
+  }
+};
+
+```
+
+##### Options
+
+We can also add optional command line parameters. Handling these are your own responsibility, a simple way is using [gulp-util](https://github.com/gulpjs/gulp-util)'s `env` property.
+Tasks with sequences or dependencies will inherit the optional parameters when calling the help task.
+
+```js
+// ./examples/options/tasks/options.js
+
+module.exports = function (gulp) {
+
+  var gutil = require('gulp-util');
+
+  var tasks = {
+    'first': {
+      fn: firstTask,
+      description: 'Shows info about this task',
+      options: {
+        '-f, --foo': 'Foo option'
+      }
+    },
+    'second': {
+      fn: secondTask,
+      description: 'Show info about the second task',
+      options: {
+        '-b, --bar': 'Bar option'
+      }
+    },
+    'third': {
+      fn: thirdTask,
+      seq: ['first', 'second'],
+      description: 'Info about third task',
+      options: {
+        '-s, --snafu': 'Snafu option'
+      }
+    },
+    'fourth': {
+      fn: fourthTask,
+      dep: ['third'],
+      description: 'Info about fourth task',
+      options: {
+        '-p, --pebkac': 'Pebkac option'
+      }
+    }
+  };
+
+  return tasks;
+
+  function firstTask() {
+    var option = gutil.env.f || gutil.env.foo;
+
+    console.log('first option: f/foo', option);
+  }
+
+  function secondTask() {
+    var option = gutil.env.b || gutil.env.bar;
+
+    console.log('second option: b/bar', option);
+  }
+
+  function thirdTask() {
+    var option = gutil.env.s || gutil.env.snafu;
+
+    console.log('third option: s/snafu', option);
+  }
+
+  function fourthTask() {
+    var option = gutil.env.p || gutil.env.pebkac;
+
+    console.log('fourth option: p/pebkac', option);
+    console.log('All options', gutil.env);
+  }
+};
+
+```
+
+```bash
+[19:35:22] Starting 'help'...
+help Usage
+  gulp task [ option ... ]
+Tasks
+  help     : Show help
+    -a, --all            : Also show tasks without descriptions
+  first    : Shows info about this task
+    -o, --option     : Some option
+  second   : Show info about the second task
+    -m, --more       : Another option
+  third    : Info about third task
+    -o, --option     : Some option
+    -m, --more       : Another option
+    -e, --evenmore   : And another option
+  fourth   : Info about fourth task
+    -e, --evenmore   : And another option
+    -o, --option     : Some option
+    -m, --more       : Another option
+    -f, --foo        : And another option
+```
+
+## API
+
+```js
+var cjsTasks = require('gulp-cjs-tasks');
+var taskLoader = cjsTasks.taskLoader;
+var taskInfo = cjsTasks.taskInfo;
+```
+
+### taskLoader
+
+You can also retrieve this object directly.
+
+```js
+var taskLoader = require('gulp-cjs-tasks/task-loader');
+```
+
+#### taskLoader.load(taskDir, gulp, args...)
+
+The return value of `taskLoader.load()` is an object which contains the following keys.
+
+```js
+{
+  taskNames: [ list of task names ],
+  defaultTaskNames: [ list of default task names ],
+  addHelpTask: [ adds a help task ],
+  taskTree: [Function: returns all tasks ],
+  cliHelp: [Function: returns formatted help string ]
+}
+```
+
+### taskInfo
+
+You can also retrieve this object directly.
+
+```js
+var taskInfo = require('gulp-cjs-tasks/task-info');
+```
+
+#### taskInfo(gulp)
+
+```js
+{
+  cliHelp: [Function: returns formatted help string ],
+  taskTree: [Function: returns all tasks ]
+}
+```
+
+##### cliHelp(options)
+
+```js
+{
+  a : [ boolean: wether or not to display tasks without descriptions ],
+  all : [ boolean: wether or not to display tasks without descriptions ]
+}
+```
+
+##### taskTree()
+
+Returns flattened tree of all tasks.
