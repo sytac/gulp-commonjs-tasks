@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/sytac/gulp-cjs-tasks.svg)](https://travis-ci.org/sytac/gulp-cjs-tasks)
-
-[ ![Codeship Status for sytac/gulp-cjs-tasks](https://codeship.com/projects/67d81b70-c65a-0132-5355-3297e6cd1d5c/status?branch=master)](https://codeship.com/projects/74623)
+[ ![Codeship Status for sytac/gulp-commonjs-tasks](https://codeship.com/projects/7296a1a0-1788-0133-a70a-6a93520ab972/status?branch=master)](https://codeship.com/projects/93633)
 
 # gulp-commonjs-tasks
 _Gulp tasks as CommonJS modules_
@@ -43,9 +41,9 @@ Now let's create a module in `./tasks` and call it `simple.js`
 The CommonJS module above returns a function which takes in the `gulp` object as an argument. This argument is needed to access gulp tasks in other task files. It is not mandatory, but if you'd like to use `gulp.src()` for instance, you need it.
 
 ```bash
-[gulp-cjs-tasks-examples] cd examples/straight-gulp
+[gulp-commonjs-tasks-examples] cd examples/straight-gulp
 [straight-gulp] gulp
-[07:08:10] Using gulpfile ~/temp/gulp-cjs-tasks-examples/examples/straight-gulp/gulpfile.js
+[07:08:10] Using gulpfile ~/temp/gulp-commonjs-tasks-examples/examples/straight-gulp/gulpfile.js
 [07:08:10] Starting 'help'...
 first-task My first task
 second-task My second task
@@ -55,9 +53,9 @@ second-task My second task
 ```
 
 ```bash
-[gulp-cjs-tasks-examples] cd examples/commonjs
+[gulp-commonjs-tasks-examples] cd examples/commonjs
 [commonjs] gulp
-[07:06:08] Using gulpfile ~/gulp-cjs-tasks-examples/examples/commonjs/gulpfile.js
+[07:06:08] Using gulpfile ~/gulp-commonjs-tasks-examples/examples/commonjs/gulpfile.js
 [07:06:08] Starting 'help'...
 help Usage
   gulp task [ option ... ]
@@ -96,7 +94,7 @@ And we use it in a task to use `gulp-template`.
 
 ```bash
 [gulp-load-plugins] gulp create-readme
-[11:39:38] Using gulpfile ~/temp/gulp-cjs-tasks-examples/examples/gulp-load-plugins/gulpfile.js
+[11:39:38] Using gulpfile ~/temp/gulp-commonjs-tasks-examples/examples/gulp-load-plugins/gulpfile.js
 [11:39:38] Starting 'create-readme'...
 [11:39:38] Finished 'create-readme' after 71 ms
 [gulp-load-plugins] cat README.md
@@ -210,7 +208,7 @@ Tasks
 ## API
 
 ```js
-var cjsTasks = require('gulp-cjs-tasks');
+var cjsTasks = require('gulp-commonjs-tasks');
 var taskLoader = cjsTasks.taskLoader;
 var taskInfo = cjsTasks.taskInfo;
 ```
@@ -220,7 +218,7 @@ var taskInfo = cjsTasks.taskInfo;
 You can also retrieve this object directly.
 
 ```js
-var taskLoader = require('gulp-cjs-tasks/task-loader');
+var taskLoader = require('gulp-commonjs-tasks/task-loader');
 ```
 
 #### taskLoader.load(taskDir, gulp, args...)
@@ -242,7 +240,7 @@ The return value of `taskLoader.load()` is an object which contains the followin
 You can also retrieve this object directly.
 
 ```js
-var taskInfo = require('gulp-cjs-tasks/task-info');
+var taskInfo = require('gulp-commonjs-tasks/task-info');
 ```
 
 #### taskInfo(gulp)
