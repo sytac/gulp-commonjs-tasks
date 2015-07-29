@@ -10,7 +10,7 @@ Because large gulpfiles are a pain and CommonJS modules are fine for managing gu
 - Gulp tasks as CommonJS modules.
 - Pass as many arguments as you need to your modules.
 - Built-in [run-sequence](https://www.npmjs.com/package/run-sequence) for more fine grained control over sequences.
-- Anonymous dependencies and sequences, no need to create a gulp task for every dependend or sequenced task.
+- Anonymous dependencies and sequences, no need to create a gulp task for every dependent or sequential task.
 - Inheritance of optional task params.
 - Self documenting tasks on the command line.
 - Plays well with [gulp-load-plugins](https://www.npmjs.com/package/gulp-load-plugins).
@@ -25,6 +25,11 @@ $ npm install --save-dev gulp gulp-commonjs-tasks
 ### Examples
 
 [Detailed examples on features](docs/example-overview.md) can be found in [./docs](docs/example-overview.md). The actual examples can be found in the `./examples` directory.
+
+
+## API
+
+[API details](docs/api.md) can be found in [./docs/api/md](docs/api.md).
 
 #### Gulp tasks as CommonJS modules
 
@@ -84,6 +89,4 @@ Tasks
     -f, --foo        : And another option
 ```
 
-## API
-
-[API](docs/api.md)
+For subjects like sequences, dependencies, promises, and more head over to [./docs/](docs/example-overview)!
