@@ -1,4 +1,4 @@
-module.exports = function(gulp, config, env, movieQuote) {
+module.exports = function (gulp, config, env, movieQuote) {
 
   var Q = require('q');
 
@@ -19,7 +19,7 @@ module.exports = function(gulp, config, env, movieQuote) {
     },
 
     'with-options': {
-      fn: function() {},
+      fn: function () {},
       description: 'This task has one option',
       options: {
         '--first': 'The first option'
@@ -27,7 +27,7 @@ module.exports = function(gulp, config, env, movieQuote) {
     },
 
     'also-with-options': {
-      fn: function() {},
+      fn: function () {},
       description: 'This task also has one option',
       options: {
         '--second': 'The second option'
@@ -35,7 +35,7 @@ module.exports = function(gulp, config, env, movieQuote) {
     },
 
     'inherited-options': {
-      fn: function() {},
+      fn: function () {},
       seq: ['with-options', 'also-with-options'],
       description: 'This task has one option and two inherited options',
       options: {
@@ -71,22 +71,22 @@ module.exports = function(gulp, config, env, movieQuote) {
 
     'anon-dependencies': {
       fn: taskWithAnonymousDependencies,
-      dep: [function(done) {
+      dep: [function (done) {
         console.log('anon task 1');
         done();
-      }, function() {
+      }, function () {
         var deferred = Q.defer();
         console.log('anon task 2 started');
-        setTimeout(function() {
+        setTimeout(function () {
           console.log('anon task 2 resolved');
           deferred.resolve();
         }, 1000);
         console.log('anon task 2 ended');
         return deferred.promise;
-      }, function() {
+      }, function () {
         console.log('anon task 3 started');
-        return new Promise(function(resolve, reject) {
-          setTimeout(function() {
+        return new Promise(function (resolve, reject) {
+          setTimeout(function () {
             console.log('anon task 3 resolved');
             resolve();
           }, 1500);
@@ -104,11 +104,11 @@ module.exports = function(gulp, config, env, movieQuote) {
     'sequence': {
       fn: afterSequence,
       seq: [
-        [sequence1a, 'sequence-1-a', function() {
+        [sequence1a, 'sequence-1-a', function () {
           console.log('anon');
-        }, function() {}, 'sequence-1-b'],
-        ['sequence-2-a', 'sequence-2-b', function() {},
-          function() {}
+        }, function () {}, 'sequence-1-b'],
+        ['sequence-2-a', 'sequence-2-b', function () {},
+          function () {}
         ]
       ],
       description: 'A sequence of tasks'
@@ -175,7 +175,7 @@ module.exports = function(gulp, config, env, movieQuote) {
 
   function dep2Task(done) {
     console.log('dep2Task started');
-    setTimeout(function() {
+    setTimeout(function () {
 
       console.log('dep2Task ended');
       done();
@@ -194,7 +194,7 @@ module.exports = function(gulp, config, env, movieQuote) {
   }
 
   function sequence1a(done) {
-    setTimeout(function() {
+    setTimeout(function () {
       console.log('sequence-1-a');
       done();
     }, 2000);
@@ -206,7 +206,7 @@ module.exports = function(gulp, config, env, movieQuote) {
   }
 
   function sequence1b(done) {
-    setTimeout(function() {
+    setTimeout(function () {
       console.log('sequence-1-b');
       done();
     }, 100);

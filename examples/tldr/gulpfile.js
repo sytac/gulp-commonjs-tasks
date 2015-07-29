@@ -25,7 +25,7 @@ var movieQuote = 'The light that burns twice as bright, burns half as long.';
 var currentTasks = taskLoader.load(path.join(__dirname, 'tasks'), gulp,
   config, env,
   movieQuote);
-console.log('taskInfo', taskLoader);
+
 // Add a gulp help task.
 currentTasks
   .addHelpTask();

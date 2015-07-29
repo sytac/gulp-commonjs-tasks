@@ -23,6 +23,7 @@
   "author": "JP Wesselink <jpwesselink@gmail.com>",
   "license": "GPL-3.0",
   "devDependencies": {
+    "bluebird": "^2.9.34",
     "cli-tree": "0.0.1",
     "eslint": "^0.24.1",
     "expect.js": "^0.3.1",
@@ -31,6 +32,7 @@
     "gulp-template": "^3.0.0",
     "istanbul": "^0.3.13",
     "mocha": "^2.2.4",
+    "q": "^1.4.1",
     "sinon": "^1.14.1"
   },
   "dependencies": {

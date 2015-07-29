@@ -3,9 +3,9 @@ var symlink = require('gulp-symlink');
 
 module.exports = function (gulp) {
   var examples = {
-    prepare: {
+    'prepare-examples': {
       fn: prepareTask,
-      description: 'Prepares examples for usage'
+      description: 'Prepares examples for usage.'
     }
   };
 
