@@ -1,6 +1,6 @@
 {
   "name": "gulp-commonjs-tasks",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Regular commonjs gulp tasks",
   "main": "index.js",
   "files": [
@@ -30,6 +30,7 @@
     "eslint": "^0.24.1",
     "expect.js": "^0.3.1",
     "globule": "^0.2.0",
+    "gulp-symlink": "^2.1.2",
     "gulp-template": "^3.0.0",
     "istanbul": "^0.3.13",
     "mocha": "^2.2.4",

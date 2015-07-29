@@ -22,6 +22,14 @@ Install `gulp` and `gulp-commonjs-tasks` dependencies.
 $ npm install --save-dev gulp gulp-commonjs-tasks
 ```
 
+### Running the examples
+
+In order to use a reference to this library we need to link it into `node_modules`.
+
+```bash
+$ gulp prepare
+```
+
 ### Usage
 #### Gulp tasks as CommonJS modules
 Here's an example of your regular average gulpfile with some arbitrary tasks, a help task and a default task.
