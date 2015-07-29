@@ -31,6 +31,8 @@ $ gulp prepare
 ```
 
 ### Usage
+
+[commonjs](docs/examples/commonjs.md)
 #### Gulp tasks as CommonJS modules
 Here's an example of your regular average gulpfile with some arbitrary tasks, a help task and a default task.
 

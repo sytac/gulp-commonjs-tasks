@@ -52,9 +52,6 @@ module.exports = function (gulp) {
         return ['```js', '// ' + config.file + '\n', rendered, '```'].join(
           '\n');
       }
-    }, {
-      base: './templates/_partials/',
-      src: '**/*.md'
     }].map(function (parseable) {
 
       var patterns, source;
@@ -145,7 +142,7 @@ module.exports = function (gulp) {
 
     tree(templateData);
 
-    return gulp.src(['./templates/!(_partials)/*.md', './templates/*.md'], { cwd: './'})
+    return gulp.src(['./templates/**/*.md'], { cwd: './'})
       .pipe(template(templateData))
       .pipe(gulp.dest('./'));
   }
@@ -153,7 +150,7 @@ module.exports = function (gulp) {
   function readmeWatcher() {
     // As you can see, this is a regular, run off the mill gulp.watch function call
     gulp.watch(['./tasks/*.js', './*.js', './examples/**/*.js',
-      './templates/**'
+      './templates/**/*.md'
     ], ['readme']);
   }
 };
