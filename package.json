@@ -1,6 +1,6 @@
 {
   "name": "gulp-commonjs-tasks",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "description": "Regular commonjs gulp tasks",
   "main": "index.js",
   "files": [
@@ -21,7 +21,7 @@
     "sequence"
   ],
   "author": "JP Wesselink <jpwesselink@gmail.com>",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "devDependencies": {
     "bluebird": "^2.9.34",
     "cli-tree": "0.0.1",
