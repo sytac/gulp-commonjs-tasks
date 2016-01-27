@@ -39,7 +39,7 @@
     "gulp": "^3.8.11",
     "gulp-util": "^3.0.4",
     "js-object-pretty-print": "^0.2.0",
-    "lodash": "^3.6.0",
+    "lodash": "^4.0.0",
     "run-sequence": "^1.0.2"
   }
 }
