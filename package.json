@@ -25,7 +25,7 @@
   "devDependencies": {
     "bluebird": "^3.1.1",
     "cli-tree": "0.0.1",
-    "eslint": "^1.10.3",
+    "eslint": "^2.2.0",
     "expect.js": "^0.3.1",
     "globule": "^0.2.0",
     "gulp-symlink": "^2.1.2",
