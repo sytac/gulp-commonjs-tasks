@@ -30,7 +30,7 @@
     "globule": "^0.2.0",
     "gulp-symlink": "^2.1.2",
     "gulp-template": "^3.0.0",
-    "istanbul": "^0.4.1",
+    "istanbul": "^0.4.4",
     "mocha": "^2.2.4",
     "q": "^1.4.1",
     "sinon": "^1.14.1"
